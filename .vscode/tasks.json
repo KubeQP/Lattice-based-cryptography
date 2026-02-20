@@ -1,0 +1,15 @@
+{
+    "label": "build cpp",
+    "type": "shell",
+    "command": "g++",
+    "args": [
+        "-std=c++17",
+        "${file}",
+        "-o",
+        "${fileDirname}/${fileBasenameNoExtension}"
+    ],
+    "group": {
+        "kind": "build",
+        "isDefault": true
+    }
+}
