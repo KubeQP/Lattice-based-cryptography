@@ -3,6 +3,8 @@
 #include <string>
 #include <bitset>
 #include <algorithm>
+#include <cstdlib>  
+#include <ctime>    
 
 
 int invalidArgument() {
@@ -33,6 +35,25 @@ std::vector<std::string> stringToBinary(const std::string& input) {
     for (char c : input) {
         std::bitset<8> binary(c);   // 8-bit ASCII representation
         result.push_back(binary.to_string());
+    }
+
+    return result;
+}
+
+std::vector<std::vector<int>> randomMatrix(int n, int m, int minVal = 0, int maxVal = 9) {
+    std::vector<std::vector<int>> result;
+    result.reserve(n); 
+
+    for (int i = 0; i < n; i++) {
+        std::vector<int> row;
+        row.reserve(m); 
+
+        for (int j = 0; j < m; j++) {
+            int val = minVal + std::rand() % (maxVal - minVal + 1);
+            row.push_back(val);
+        }
+
+        result.push_back(row);
     }
 
     return result;
@@ -92,7 +113,16 @@ int main(int argc, char* argv[]) {
         std::cout << byte << "\n";
     }        
 
-    std::cout << argc;
+    std::srand(std::time(nullptr)); // seed för slump
+
+    auto mat = randomMatrix(3, 4); // 3x4 matris
+
+    for (auto& row : mat) {
+        for (auto val : row)
+            std::cout << val << " ";
+        std::cout << "\n";
+    }
+
     std::cout << "\n";
 
     return 0;
