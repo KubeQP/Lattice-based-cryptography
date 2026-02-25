@@ -6,7 +6,7 @@
 
 
 int invalidArgument() {
-    std::cout << "Invalid argument.\n Usage: ./main OPTION (DATA) (KEY)\n";
+    std::cout << "Invalid argument.\n Usage: ./main OPTION (KEY) (DATA)\n";
     return 0;
 }
 
