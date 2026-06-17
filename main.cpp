@@ -46,10 +46,6 @@ static string bitsToText(const vector<int>& bits) {
     return out;
 }
 
-// =====================
-// MAIN
-// =====================
-
 int main(int argc, char* argv[]) {
 
     LWEParams p;
@@ -66,9 +62,6 @@ int main(int argc, char* argv[]) {
 
     string mode = argv[1];
 
-    // =====================
-    // GEN
-    // =====================
     if (mode == "gen") {
 
         SecretKey sk;
@@ -81,9 +74,6 @@ int main(int argc, char* argv[]) {
         return 0;
     }
 
-    // =====================
-    // ENC
-    // =====================
     if (mode == "enc" && argc == 4) {
 
         Matrix A;
@@ -114,9 +104,6 @@ int main(int argc, char* argv[]) {
         return 0;
     }
 
-    // =====================
-    // DEC
-    // =====================
     if (mode == "dec" && argc == 4) {
 
         Matrix A;
@@ -162,7 +149,6 @@ int main(int argc, char* argv[]) {
             bits.push_back(decrypt(ct, sk, p));
         }
 
-        // 👉 convert bits → text
         cout << bitsToText(bits) << "\n";
 
         return 0;
