@@ -1,6 +1,65 @@
 #include "crypt.h"
 #include <cmath>
 
+#include <sstream>
+
+// =====================
+// MISSING HELPERS ONLY
+// =====================
+
+Vector parseVector(const std::string& str) {
+    Vector v;
+    std::stringstream ss(str);
+    std::string item;
+
+    while (std::getline(ss, item, ',')) {
+        if (!item.empty())
+            v.push_back(std::stoi(item));
+    }
+    return v;
+}
+
+Matrix parseMatrix(const std::string& str) {
+    Matrix A;
+    std::stringstream ss(str);
+    std::string row;
+
+    while (std::getline(ss, row, ';')) {
+        A.push_back(parseVector(row));
+    }
+    return A;
+}
+
+std::string vecToStr(const Vector& v) {
+    std::string s;
+    for (size_t i = 0; i < v.size(); i++) {
+        s += std::to_string(v[i]);
+        if (i + 1 < v.size()) s += ",";
+    }
+    return s;
+}
+
+std::string matToStr(const Matrix& A) {
+    std::string s;
+    for (size_t i = 0; i < A.size(); i++) {
+        s += vecToStr(A[i]);
+        if (i + 1 < A.size()) s += ";";
+    }
+    return s;
+}
+
+Vector textToBits(const std::string& text) {
+    Vector bits;
+
+    for (char c : text) {
+        for (int i = 7; i >= 0; i--) {
+            bits.push_back((c >> i) & 1);
+        }
+    }
+
+    return bits;
+}
+
 PublicKey keygen(const LWEParams& p, SecretKey& sk) {
     sk.s = randomVector(p);
 

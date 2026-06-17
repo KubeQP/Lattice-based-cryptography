@@ -1,6 +1,11 @@
 #pragma once
+
 #include "core.h"
-#include <cmath>
+#include <vector>
+#include <string>
+
+using Vector = std::vector<int>;
+using Matrix = std::vector<Vector>;
 
 struct PublicKey {
     Matrix A;
@@ -16,12 +21,21 @@ struct Ciphertext {
     int v;
 };
 
-PublicKey keygen(const LWEParams& p, SecretKey& sk);
+// crypto
+PublicKey keygen(const LWEParams&, SecretKey&);
 
-Ciphertext encrypt(const PublicKey& pk, const LWEParams& p, int m);
+Ciphertext encrypt(const PublicKey&, const LWEParams&, int);
 
-int decrypt(const Ciphertext& ct, const SecretKey& sk, const LWEParams& p);
+std::vector<Ciphertext> encryptBits(const PublicKey&, const LWEParams&, const Vector&);
 
-std::vector<Ciphertext> encryptBits(const PublicKey& pk, const LWEParams& p, const std::vector<int>& message);
+int decrypt(const Ciphertext&, const SecretKey&, const LWEParams&);
 
-std::vector<int> decryptBits(const std::vector<Ciphertext>& ct, const SecretKey& sk, const LWEParams& p);
+std::vector<int> decryptBits(const std::vector<Ciphertext>&, const SecretKey&, const LWEParams&);
+
+Vector parseVector(const std::string&);
+Matrix parseMatrix(const std::string&);
+
+std::string vecToStr(const Vector&);
+std::string matToStr(const Matrix&);
+
+Vector textToBits(const std::string&);
