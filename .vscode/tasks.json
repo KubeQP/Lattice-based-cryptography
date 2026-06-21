@@ -4,9 +4,11 @@
     "command": "g++",
     "args": [
         "-std=c++17",
-        "${file}",
+        "main.cpp",
+        "core.cpp",
+        "crypt.cpp",
         "-o",
-        "${fileDirname}/${fileBasenameNoExtension}"
+        "main"
     ],
     "group": {
         "kind": "build",

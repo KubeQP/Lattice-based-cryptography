@@ -1,59 +1,151 @@
 #include <iostream>
-#include <vector>
+#include <fstream>
 #include <string>
-#include <bitset>
+#include <vector>
+#include <algorithm>
 
-// Function: converts each character in the string to its ASCII binary
-std::vector<int> stringToBinary(const std::string& input) {
-    std::vector<int> result;
+#include "crypt.h"
 
-    for (char c : input) {
-        std::bitset<8> binary(c);   // 8-bit ASCII representation
-        result.push_back(static_cast<unsigned char>(c));
+using namespace std;
+
+static void loadKeys(const string& file, Matrix& A, Vector& b, Vector& s) {
+    ifstream in(file);
+    string line;
+
+    while (getline(in, line)) {
+        if (line.rfind("A=", 0) == 0)
+            A = parseMatrix(line.substr(2));
+        else if (line.rfind("b=", 0) == 0)
+            b = parseVector(line.substr(2));
+        else if (line.rfind("s=", 0) == 0)
+            s = parseVector(line.substr(2));
     }
-
-    return result;
 }
 
-//Simple vector mul with a int
-std::vector<int> vectorMulWithInt(const std::vector<int>& input, int k) {
-    std::vector<int> result;
-    result.reserve(input.size()); // optional but efficient
+static string bitsToText(const vector<int>& bits) {
+    string out;
 
-    for (int value : input) {
-        result.push_back(value * k);
+    for (size_t i = 0; i + 7 < bits.size(); i += 8) {
+        int val = 0;
+
+        for (int j = 0; j < 8; j++) {
+            val = (val << 1) | bits[i + j];
+        }
+
+        out.push_back((char)val);
     }
 
-    return result;
+    return out;
 }
-
-//std::vector<std::string> encrypt(const std::string& input) {}
-
 
 int main(int argc, char* argv[]) {
 
+    LWEParams p;
+    p.n = 1024;
+    p.q = 3329;
+
     if (argc < 2) {
-        std::cout << "Usage: ./program <message> [0 or 1]\n";
-        return 1;
+        cout << "Usage:\n";
+        cout << "./main gen\n";
+        cout << "./main enc keys.txt input.txt > cipher.txt\n";
+        cout << "./main dec keys.txt cipher.txt\n";
+        return 0;
     }
 
-    std::string message = argv[1];
+    string mode = argv[1];
 
-    bool isBinary = false;
+    if (mode == "gen") {
 
-    if (argc >= 3) {
-        isBinary = std::stoi(argv[2]) != 0;
+        SecretKey sk;
+        PublicKey pk = keygen(p, sk);
+
+        cout << "A=" << matToStr(pk.A) << "\n";
+        cout << "b=" << vecToStr(pk.b) << "\n";
+        cout << "s=" << vecToStr(sk.s) << "\n";
+
+        return 0;
     }
 
-    std::vector<int> binaries;
+    if (mode == "enc" && argc == 4) {
 
-    if (!isBinary)
-        binaries = stringToBinary(message);
-    else
-        binaries = {std::stoi(message)};
-        
-    for (const auto& b : binaries)
-        std::cout << b << "\n";
-        
+        Matrix A;
+        Vector b, s;
+        loadKeys(argv[2], A, b, s);
+
+        PublicKey pk{A, b};
+
+        ifstream in(argv[3]);
+        string msg;
+
+        while (getline(in, msg)) {
+
+            if (msg.empty()) continue;
+
+            Vector bits = textToBits(msg);
+            auto ct = encryptBits(pk, p, bits);
+
+            for (auto &c : ct) {
+                for (int i = 0; i < (int)c.u.size(); i++) {
+                    cout << c.u[i];
+                    if (i + 1 < (int)c.u.size()) cout << ",";
+                }
+                cout << "|" << c.v << "\n";
+            }
+        }
+
+        return 0;
+    }
+
+    if (mode == "dec" && argc == 4) {
+
+        Matrix A;
+        Vector b, s;
+        loadKeys(argv[2], A, b, s);
+
+        PublicKey pk{A, b};
+        SecretKey sk{s};
+
+        ifstream in(argv[3]);
+        string line;
+
+        vector<int> bits;
+
+        while (getline(in, line)) {
+
+            if (line.empty()) continue;
+
+            size_t sep = line.find('|');
+            if (sep == string::npos) continue;
+
+            string uStr = line.substr(0, sep);
+            string vStr = line.substr(sep + 1);
+
+            int v = stoi(vStr);
+
+            Vector u;
+            string num;
+
+            for (char c : uStr) {
+                if (c == ',') {
+                    u.push_back(stoi(num));
+                    num.clear();
+                } else {
+                    num.push_back(c);
+                }
+            }
+            if (!num.empty())
+                u.push_back(stoi(num));
+
+            Ciphertext ct{u, v};
+
+            bits.push_back(decrypt(ct, sk, p));
+        }
+
+        cout << bitsToText(bits) << "\n";
+
+        return 0;
+    }
+
+    cout << "Invalid mode\n";
     return 0;
 }

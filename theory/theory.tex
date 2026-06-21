@@ -1,0 +1,188 @@
+\documentclass{article}
+\usepackage{amsmath, amssymb}
+
+\title{Sammanfattning av LWE och modulär linjär algebra}
+\author{}
+\date{}
+
+\begin{document}
+
+\maketitle
+
+\section{Intuition: varför LWE fungerar}
+
+Bra — "varför" är exakt den viktiga delen här. Det här är själva kärnan i varför LWE-kryptering fungerar.
+
+Vi tar det lugnt och bygger intuition.
+
+\section{Grundidén i LWE-krypto}
+
+Du har:
+\[
+b = As + e \pmod q
+\]
+
+och vill skicka en bit $m \in \{0,1\}$ utan att någon kan lära sig $s$.
+
+\section{Varför använder man slumpvektor $r$?}
+
+När klienten krypterar väljer den en slumpvektor $r$.
+
+Detta gör två viktiga saker:
+
+\subsection*{1. “Mixar” hela systemet}
+Den kombinerar många kolumner i $A$ och $b$.
+
+\subsection*{2. Gör varje ciphertext unik}
+Samma meddelande ger olika resultat varje gång.
+
+\section{Varför $u = A^T r$?}
+
+\[
+u = A^T r
+\]
+
+Detta är en slumpmässig linjärkombination av kolumnerna i $A$.
+
+Intuition:
+\begin{itemize}
+\item $A$ är som ett system av basvektorer
+\item $r$ väljer hur du blandar dem
+\end{itemize}
+
+Alltså blir $u$ ett "fingeravtryck" av $A$ utan att avslöja något om $s$.
+
+\section{Varför använder man $b^T r$?}
+
+Vi har:
+\[
+b = As + e
+\]
+
+Så:
+\[
+b^T r = (As + e)^T r
+\]
+
+\[
+= s^T A^T r + e^T r
+\]
+
+Eftersom:
+\[
+A^T r = u
+\]
+
+får vi:
+\[
+b^T r = s^T u + e^T r
+\]
+
+\section{Viktig poäng}
+
+\[
+b^T r = s^T u + \text{brus}
+\]
+
+Det betyder att:
+
+Den som inte känner $s$ kan inte ta bort denna struktur.
+
+\section{Varför lägger vi till $m \cdot q/2$?}
+
+Vi kodar biten som:
+\[
+m =
+\begin{cases}
+0 \rightarrow 0 \\
+1 \rightarrow q/2
+\end{cases}
+\]
+
+Intuition:
+\begin{itemize}
+\item vi skapar två kluster: nära 0 och nära $q/2$
+\end{itemize}
+
+\section{Vad är $v$?}
+
+\[
+v = b^T r + m \cdot \frac{q}{2}
+\]
+
+Alltså:
+\begin{itemize}
+\item ett dolt brusigt värde
+\item plus en stor skiftning beroende på biten
+\end{itemize}
+
+\section{Varför kan mottagaren dekryptera?}
+
+Mottagaren beräknar:
+\[
+v - s^T u
+\]
+
+Sätt in uttrycken:
+\[
+(s^T u + e^T r + m \cdot q/2) - s^T u
+\]
+
+Förenkla:
+\[
+= e^T r + m \cdot \frac{q}{2}
+\]
+
+\section{Resultat}
+
+\[
+m \cdot \frac{q}{2} + \text{litet brus}
+\]
+
+\section{Beslutsregel}
+
+\begin{itemize}
+\item nära $0 \Rightarrow m = 0$
+\item nära $q/2 \Rightarrow m = 1$
+\end{itemize}
+
+\section{Klassisk LWE-definition}
+
+\[
+b = As + e \pmod q
+\]
+
+\begin{itemize}
+\item $A \in \mathbb{Z}_q^{n \times n}$
+\item $s \in \mathbb{Z}_q^n$
+\item $e \in \mathbb{Z}_q^n$
+\item $b \in \mathbb{Z}_q^n$
+\end{itemize}
+
+\section{Intuition (sammanfattning)}
+
+\begin{itemize}
+\item $As$ = strukturerad signal
+\item $e$ = brus
+\item $b$ = förvrängd observation
+\end{itemize}
+
+\section{Varför det fungerar}
+
+Sambandet:
+\[
+b^T r = s^T u + e^T r
+\]
+
+gör att hemligheten bara kan elimineras om $s$ är känd.
+
+\section{Slutsats}
+
+LWE bygger på:
+\[
+b = As + e \pmod q
+\]
+
+Säkerheten kommer från svårigheten att lösa linjära system med brus.
+
+\end{document}
