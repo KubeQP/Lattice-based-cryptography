@@ -3,10 +3,6 @@
 
 #include <sstream>
 
-// =====================
-// MISSING HELPERS ONLY
-// =====================
-
 Vector parseVector(const std::string& str) {
     Vector v;
     std::stringstream ss(str);

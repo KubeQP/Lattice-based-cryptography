@@ -8,10 +8,6 @@
 
 using namespace std;
 
-// =====================
-// KEY LOADING
-// =====================
-
 static void loadKeys(const string& file, Matrix& A, Vector& b, Vector& s) {
     ifstream in(file);
     string line;
@@ -25,10 +21,6 @@ static void loadKeys(const string& file, Matrix& A, Vector& b, Vector& s) {
             s = parseVector(line.substr(2));
     }
 }
-
-// =====================
-// BITS → TEXT
-// =====================
 
 static string bitsToText(const vector<int>& bits) {
     string out;
